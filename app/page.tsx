@@ -217,11 +217,11 @@ export default function Home() {
               poster="/hero-poster.webp"
               aria-hidden="true"
               style={{
-                transform: `scale(${1.02 + progress * 0.09})`,
+                transform: `scale(${1.01 + progress * 0.02})`,
                 filter: `brightness(${0.72 + progress * 0.08}) saturate(${0.9 + progress * 0.12})`,
               }}
             >
-              <source src="/hero-tour.webm" type="video/webm" />
+              <source src="/hero-tour.mp4" type="video/mp4" />
             </video>
             <div className="intro-vignette" />
 
