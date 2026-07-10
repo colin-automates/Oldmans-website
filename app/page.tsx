@@ -68,10 +68,15 @@ const testimonials = [
 export default function Home() {
   const introRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const firstCopyRef = useRef<HTMLDivElement>(null);
+  const secondCopyRef = useRef<HTMLDivElement>(null);
+  const scrollCueRef = useRef<HTMLDivElement>(null);
+  const filmTimeRef = useRef<HTMLDivElement>(null);
+  const filmTimeBarRef = useRef<HTMLElement>(null);
+  const curtainRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<number | null>(null);
   const progressRef = useRef(0);
-  const [progress, setProgress] = useState(0);
-  const [videoReady, setVideoReady] = useState(false);
+  const targetProgressRef = useRef(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [pastIntro, setPastIntro] = useState(false);
 
@@ -80,38 +85,114 @@ export default function Home() {
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
-    const update = () => {
-      frameRef.current = null;
+    const renderProgress = (value: number) => {
+      const firstCopyOpacity = 1 - clamp(value / 0.27);
+      const secondCopyOpacity =
+        clamp((value - 0.34) / 0.2) *
+        (1 - clamp((value - 0.79) / 0.13));
+      const curtainProgress = clamp((value - 0.83) / 0.17);
+
+      if (videoRef.current) {
+        videoRef.current.style.transform = `scale(${1.01 + value * 0.02})`;
+      }
+      if (firstCopyRef.current) {
+        firstCopyRef.current.style.opacity = String(firstCopyOpacity);
+        firstCopyRef.current.style.transform = `translate3d(0, ${-value * 54}px, 0)`;
+      }
+      if (secondCopyRef.current) {
+        secondCopyRef.current.style.opacity = String(secondCopyOpacity);
+        secondCopyRef.current.style.transform = `translate3d(0, ${(1 - secondCopyOpacity) * 36}px, 0)`;
+      }
+      if (scrollCueRef.current) {
+        scrollCueRef.current.style.opacity = String(1 - clamp(value / 0.18));
+      }
+      if (filmTimeRef.current) {
+        filmTimeRef.current.style.opacity = String(1 - curtainProgress);
+      }
+      if (filmTimeBarRef.current) {
+        filmTimeBarRef.current.style.transform = `scaleX(${value})`;
+      }
+      if (curtainRef.current) {
+        curtainRef.current.style.transform = `translate3d(0, ${100 - curtainProgress * 100}%, 0)`;
+      }
+    };
+
+    let lastFrameTime = 0;
+
+    const animate = (timestamp: number) => {
+      const target = targetProgressRef.current;
+      const current = progressRef.current;
+      const delta = target - current;
+      const elapsed = lastFrameTime ? Math.min(0.05, (timestamp - lastFrameTime) / 1000) : 1 / 60;
+      lastFrameTime = timestamp;
+      const easing = 1 - Math.exp(-9.5 * elapsed);
+      const next = Math.abs(delta) < 0.00015 ? target : current + delta * easing;
+
+      progressRef.current = next;
+      renderProgress(next);
+
+      const video = videoRef.current;
+      const mediaTarget = next * 4.96;
+      if (
+        !reduceMotion &&
+        video &&
+        video.readyState >= 1 &&
+        !video.seeking &&
+        Math.abs(video.currentTime - mediaTarget) > 0.04
+      ) {
+        video.currentTime = mediaTarget;
+      }
+
+      const videoNeedsSync = Boolean(
+        !reduceMotion &&
+          video &&
+          video.readyState >= 1 &&
+          (video.seeking || Math.abs(video.currentTime - mediaTarget) > 0.04),
+      );
+
+      if (Math.abs(target - next) > 0.00015 || videoNeedsSync) {
+        frameRef.current = window.requestAnimationFrame(animate);
+      } else {
+        progressRef.current = target;
+        renderProgress(target);
+        frameRef.current = null;
+        lastFrameTime = 0;
+      }
+    };
+
+    const updateTarget = () => {
       const intro = introRef.current;
       if (!intro) return;
 
       const rect = intro.getBoundingClientRect();
       const next = getIntroProgress(intro);
-      progressRef.current = next;
-      setProgress(next);
+      targetProgressRef.current = next;
       setPastIntro(rect.bottom <= 96);
 
-      const video = videoRef.current;
-      if (!reduceMotion && video && video.readyState >= 1) {
-        const target = next * 4.96;
-        if (Math.abs(video.currentTime - target) > 0.035) {
-          video.currentTime = target;
-        }
+      if (reduceMotion) {
+        progressRef.current = next;
+        renderProgress(next);
+      } else if (frameRef.current === null) {
+        lastFrameTime = 0;
+        frameRef.current = window.requestAnimationFrame(animate);
       }
     };
 
-    const requestUpdate = () => {
-      if (frameRef.current === null) {
-        frameRef.current = window.requestAnimationFrame(update);
-      }
-    };
-
-    update();
-    window.addEventListener("scroll", requestUpdate, { passive: true });
-    window.addEventListener("resize", requestUpdate);
+    const initial = introRef.current ? getIntroProgress(introRef.current) : 0;
+    progressRef.current = initial;
+    targetProgressRef.current = initial;
+    renderProgress(initial);
+    const initialVideo = videoRef.current;
+    if (!reduceMotion && initialVideo && initialVideo.readyState >= 2) {
+      initialVideo.currentTime = initial * 4.96;
+      if (initial < 0.02) initialVideo.style.opacity = "1";
+    }
+    updateTarget();
+    window.addEventListener("scroll", updateTarget, { passive: true });
+    window.addEventListener("resize", updateTarget);
     return () => {
-      window.removeEventListener("scroll", requestUpdate);
-      window.removeEventListener("resize", requestUpdate);
+      window.removeEventListener("scroll", updateTarget);
+      window.removeEventListener("resize", updateTarget);
       if (frameRef.current !== null) {
         window.cancelAnimationFrame(frameRef.current);
       }
@@ -147,11 +228,6 @@ export default function Home() {
       window.removeEventListener("keydown", closeOnEscape);
     };
   }, [menuOpen]);
-
-  const firstCopyOpacity = 1 - clamp(progress / 0.27);
-  const secondCopyOpacity =
-    clamp((progress - 0.34) / 0.2) * (1 - clamp((progress - 0.79) / 0.13));
-  const curtainProgress = clamp((progress - 0.83) / 0.17);
 
   return (
     <>
@@ -227,29 +303,21 @@ export default function Home() {
               onLoadedData={(event) => {
                 const intro = introRef.current;
                 const next = intro ? getIntroProgress(intro) : progressRef.current;
+                targetProgressRef.current = next;
                 progressRef.current = next;
                 const target = next * 4.96;
                 event.currentTarget.currentTime = target;
-                if (target < 0.02) setVideoReady(true);
+                if (target < 0.02) event.currentTarget.style.opacity = "1";
               }}
-              onSeeked={() => setVideoReady(true)}
-              style={{
-                opacity: videoReady ? 1 : 0,
-                transform: `scale(${1.01 + progress * 0.02})`,
-                filter: `brightness(${0.72 + progress * 0.08}) saturate(${0.9 + progress * 0.12})`,
+              onSeeked={(event) => {
+                event.currentTarget.style.opacity = "1";
               }}
             >
               <source src="/hero-tour.mp4" type="video/mp4" />
             </video>
             <div className="intro-vignette" />
 
-            <div
-              className="intro-copy intro-copy-first"
-              style={{
-                opacity: firstCopyOpacity,
-                transform: `translateY(${-progress * 54}px)`,
-              }}
-            >
+            <div ref={firstCopyRef} className="intro-copy intro-copy-first">
               <p className="eyebrow eyebrow-light">Middle Tennessee · Home, in motion</p>
               <h1>
                 See home
@@ -258,13 +326,7 @@ export default function Home() {
               </h1>
             </div>
 
-            <div
-              className="intro-copy intro-copy-second"
-              style={{
-                opacity: secondCopyOpacity,
-                transform: `translateY(${(1 - secondCopyOpacity) * 36}px)`,
-              }}
-            >
+            <div ref={secondCopyRef} className="intro-copy intro-copy-second">
               <p className="eyebrow eyebrow-light">Joseph Gioielli · Realtor</p>
               <h2>
                 The right move
@@ -273,23 +335,20 @@ export default function Home() {
               </h2>
             </div>
 
-            <div className="scroll-cue" style={{ opacity: 1 - clamp(progress / 0.18) }}>
+            <div ref={scrollCueRef} className="scroll-cue">
               <span className="scroll-line" />
               <span>Scroll to enter</span>
             </div>
 
-            <div className="film-time" style={{ opacity: 1 - curtainProgress }}>
+            <div ref={filmTimeRef} className="film-time">
               <span>05.0</span>
               <span className="film-time-track">
-                <i style={{ transform: `scaleX(${progress})` }} />
+                <i ref={filmTimeBarRef} />
               </span>
               <span>10.0</span>
             </div>
 
-            <div
-              className="intro-curtain"
-              style={{ transform: `translateY(${100 - curtainProgress * 100}%)` }}
-            />
+            <div ref={curtainRef} className="intro-curtain" />
           </div>
         </section>
 

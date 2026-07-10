@@ -272,9 +272,14 @@ a:focus-visible {
 }
 
 .intro-video {
+  opacity: 0;
   object-fit: cover;
+  filter: brightness(0.76) saturate(0.96);
+  pointer-events: none;
+  transform: scale(1.01);
   transform-origin: center;
   transition: opacity 180ms ease;
+  backface-visibility: hidden;
   will-change: transform, filter, opacity;
 }
 
@@ -295,7 +300,8 @@ a:focus-visible {
 }
 
 .intro-copy-first {
-  transform: translateY(-48%);
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
 }
 
 .intro-copy-second {
@@ -303,7 +309,9 @@ a:focus-visible {
   right: clamp(30px, 7vw, 110px);
   bottom: 14vh;
   left: auto;
+  opacity: 0;
   text-align: right;
+  transform: translate3d(0, 36px, 0);
 }
 
 .intro-copy h1,
@@ -399,6 +407,7 @@ a:focus-visible {
   width: 100%;
   height: 100%;
   background: var(--white);
+  transform: scaleX(0);
   transform-origin: left;
 }
 
@@ -406,6 +415,7 @@ a:focus-visible {
   z-index: 5;
   top: -1px;
   background: var(--paper);
+  transform: translate3d(0, 100%, 0);
   will-change: transform;
 }
 
