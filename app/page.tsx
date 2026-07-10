@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 const clamp = (value: number, min = 0, max = 1) =>
@@ -336,11 +335,12 @@ export default function Home() {
           </div>
 
           <figure className="neighborhood-break reveal">
-            <Image
+            <img
+              className="fill-image"
               src="/clarksville-neighborhood.webp"
               alt="Contemporary craftsman home in a tree-lined Middle Tennessee neighborhood"
-              fill
-              sizes="(max-width: 760px) 100vw, 94vw"
+              loading="lazy"
+              decoding="async"
             />
             <figcaption>
               <span>Neighborhood perspective · Editorial image</span>
@@ -352,12 +352,12 @@ export default function Home() {
         <section id="meet" className="about section-shell">
           <div className="about-portrait reveal">
             <div className="portrait-frame">
-              <Image
+              <img
+                className="fill-image"
                 src="/joseph-gioielli.webp"
                 alt="Joseph Gioielli, real estate agent with eXp Realty"
-                fill
-                sizes="(max-width: 800px) 88vw, 42vw"
-                priority
+                loading="lazy"
+                decoding="async"
               />
             </div>
             <div className="portrait-caption">
@@ -433,11 +433,12 @@ export default function Home() {
 
         <section className="relocation">
           <div className="relocation-media">
-            <Image
+            <img
+              className="fill-image"
               src="/moving-day.webp"
               alt="Warm, sunlit entryway ready for moving day"
-              fill
-              sizes="100vw"
+              loading="lazy"
+              decoding="async"
             />
           </div>
           <div className="relocation-overlay" />
@@ -492,11 +493,12 @@ export default function Home() {
 
         <section className="area-feature section-shell reveal">
           <div className="area-feature-image">
-            <Image
+            <img
+              className="fill-image"
               src="/tennessee-acreage.webp"
               alt="Modern farmhouse surrounded by open Middle Tennessee acreage"
-              fill
-              sizes="(max-width: 800px) 92vw, 64vw"
+              loading="lazy"
+              decoding="async"
             />
           </div>
           <div className="area-feature-card">
