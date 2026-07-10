@@ -462,8 +462,15 @@ a:focus-visible {
 }
 
 .manifesto {
-  padding-top: clamp(130px, 17vw, 260px);
-  padding-bottom: 130px;
+  position: relative;
+  z-index: 6;
+  width: 100%;
+  margin-top: min(-100vh, -600px);
+  margin-inline: 0;
+  padding-top: clamp(96px, 9vw, 150px);
+  padding-inline: max(32px, calc((100vw - 1440px) / 2));
+  padding-bottom: 48px;
+  background: var(--paper);
 }
 
 .manifesto-grid {
@@ -471,7 +478,7 @@ a:focus-visible {
   grid-template-columns: minmax(0, 1fr) minmax(250px, 0.3fr);
   gap: 9vw;
   align-items: end;
-  margin-top: 90px;
+  margin-top: 62px;
 }
 
 .manifesto-note {
@@ -500,7 +507,7 @@ a:focus-visible {
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  margin-top: 130px;
+  margin-top: 94px;
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
 }
@@ -541,7 +548,7 @@ a:focus-visible {
 .neighborhood-break {
   position: relative;
   height: clamp(500px, 62vw, 820px);
-  margin: 86px 0 0;
+  margin: 64px 0 0;
   overflow: hidden;
   background: #d8d3c8;
 }
@@ -600,8 +607,8 @@ a:focus-visible {
   grid-template-columns: minmax(340px, 0.8fr) minmax(0, 1fr);
   gap: 10vw;
   align-items: center;
-  padding-top: 150px;
-  padding-bottom: 180px;
+  padding-top: 96px;
+  padding-bottom: 72px;
 }
 
 .portrait-frame {
@@ -640,7 +647,7 @@ a:focus-visible {
 }
 
 .about-copy .display-heading {
-  margin-top: 65px;
+  margin-top: 48px;
   font-size: clamp(54px, 6vw, 102px);
 }
 
@@ -648,7 +655,7 @@ a:focus-visible {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 34px;
-  margin-top: 52px;
+  margin-top: 38px;
   color: rgba(23, 24, 21, 0.66);
   font-size: 14px;
   line-height: 1.78;
@@ -658,40 +665,54 @@ a:focus-visible {
   margin: 0;
 }
 
-.circle-link {
-  display: flex;
-  width: 148px;
-  height: 148px;
-  flex-direction: column;
+.about-link {
+  display: inline-flex;
+  min-width: 258px;
   justify-content: space-between;
-  margin-top: 60px;
-  padding: 24px;
+  align-items: center;
+  gap: 38px;
+  margin-top: 42px;
+  padding: 13px 14px 13px 19px;
   border: 1px solid var(--ink);
-  border-radius: 50%;
   font-size: 10px;
   font-weight: 620;
   letter-spacing: 0.11em;
   text-transform: uppercase;
   transition:
     color 300ms ease,
+    background-color 300ms ease;
+}
+
+.about-link span:last-child {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--white);
+  background: var(--ink);
+  font-size: 14px;
+  transition:
+    color 300ms ease,
     background-color 300ms ease,
     transform 300ms ease;
 }
 
-.circle-link span:last-child {
-  align-self: flex-end;
-  font-size: 16px;
-}
-
-.circle-link:hover {
+.about-link:hover {
   color: var(--white);
   background: var(--ink);
-  transform: rotate(-4deg);
+}
+
+.about-link:hover span:last-child {
+  color: var(--ink);
+  background: var(--white);
+  transform: translate(3px, -3px);
 }
 
 .services {
-  padding-top: 80px;
-  padding-bottom: 180px;
+  padding-top: 56px;
+  padding-bottom: 150px;
+  border-top: 1px solid var(--line);
 }
 
 .services-heading {
@@ -1425,8 +1446,9 @@ a:focus-visible {
   }
 
   .manifesto {
-    padding-top: 100px;
-    padding-bottom: 80px;
+    padding-top: 72px;
+    padding-inline: 18px;
+    padding-bottom: 28px;
   }
 
   .manifesto-grid {
@@ -1476,8 +1498,8 @@ a:focus-visible {
 
   .about {
     grid-template-columns: 1fr;
-    padding-top: 80px;
-    padding-bottom: 120px;
+    padding-top: 64px;
+    padding-bottom: 54px;
   }
 
   .about-copy {
@@ -1493,14 +1515,13 @@ a:focus-visible {
     margin-top: 38px;
   }
 
-  .circle-link {
-    width: 130px;
-    height: 130px;
-    padding: 20px;
+  .about-link {
+    min-width: min(100%, 258px);
+    margin-top: 34px;
   }
 
   .services {
-    padding-top: 30px;
+    padding-top: 42px;
     padding-bottom: 110px;
   }
 
@@ -1647,6 +1668,10 @@ a:focus-visible {
 
   .intro-scroll {
     height: 150vh;
+  }
+
+  .manifesto {
+    margin-top: 0;
   }
 
   .reveal {

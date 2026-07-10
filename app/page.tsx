@@ -90,7 +90,7 @@ export default function Home() {
       const secondCopyOpacity =
         clamp((value - 0.34) / 0.2) *
         (1 - clamp((value - 0.79) / 0.13));
-      const curtainProgress = clamp((value - 0.83) / 0.17);
+      const curtainProgress = clamp((value - 0.715) / 0.285);
 
       if (videoRef.current) {
         videoRef.current.style.transform = `scale(${1.01 + value * 0.02})`;
@@ -164,10 +164,9 @@ export default function Home() {
       const intro = introRef.current;
       if (!intro) return;
 
-      const rect = intro.getBoundingClientRect();
       const next = getIntroProgress(intro);
       targetProgressRef.current = next;
-      setPastIntro(rect.bottom <= 96);
+      setPastIntro(next >= 0.97);
 
       if (reduceMotion) {
         progressRef.current = next;
@@ -448,7 +447,7 @@ export default function Home() {
               </p>
             </div>
             <a
-              className="circle-link reveal"
+              className="about-link reveal"
               href="https://joeghomes.com/agents/Joseph-Gioielli/8934980"
             >
               <span>More about Joe</span>
