@@ -6,6 +6,12 @@ import { useEffect, useRef, useState } from "react";
 const clamp = (value: number, min = 0, max = 1) =>
   Math.min(max, Math.max(min, value));
 
+const getIntroProgress = (element: HTMLElement) => {
+  const rect = element.getBoundingClientRect();
+  const scrollable = Math.max(1, element.offsetHeight - window.innerHeight);
+  return clamp(-rect.top / scrollable);
+};
+
 const services = [
   {
     number: "01",
@@ -64,7 +70,9 @@ export default function Home() {
   const introRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const frameRef = useRef<number | null>(null);
+  const progressRef = useRef(0);
   const [progress, setProgress] = useState(0);
+  const [videoReady, setVideoReady] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [pastIntro, setPastIntro] = useState(false);
 
@@ -79,8 +87,8 @@ export default function Home() {
       if (!intro) return;
 
       const rect = intro.getBoundingClientRect();
-      const scrollable = Math.max(1, intro.offsetHeight - window.innerHeight);
-      const next = clamp(-rect.top / scrollable);
+      const next = getIntroProgress(intro);
+      progressRef.current = next;
       setProgress(next);
       setPastIntro(rect.bottom <= 96);
 
@@ -208,6 +216,7 @@ export default function Home() {
       <main id="main-content">
         <section id="top" className="intro-scroll" ref={introRef}>
           <div className="intro-sticky">
+            <div className="intro-poster" aria-hidden="true" />
             <video
               ref={videoRef}
               className="intro-video"
@@ -216,7 +225,17 @@ export default function Home() {
               preload="auto"
               poster="/hero-poster.webp"
               aria-hidden="true"
+              onLoadedData={(event) => {
+                const intro = introRef.current;
+                const next = intro ? getIntroProgress(intro) : progressRef.current;
+                progressRef.current = next;
+                const target = next * 4.96;
+                event.currentTarget.currentTime = target;
+                if (target < 0.02) setVideoReady(true);
+              }}
+              onSeeked={() => setVideoReady(true)}
               style={{
+                opacity: videoReady ? 1 : 0,
                 transform: `scale(${1.01 + progress * 0.02})`,
                 filter: `brightness(${0.72 + progress * 0.08}) saturate(${0.9 + progress * 0.12})`,
               }}
@@ -315,6 +334,19 @@ export default function Home() {
               <span>Sales in the last 12 months</span>
             </article>
           </div>
+
+          <figure className="neighborhood-break reveal">
+            <Image
+              src="/clarksville-neighborhood.webp"
+              alt="Contemporary craftsman home in a tree-lined Middle Tennessee neighborhood"
+              fill
+              sizes="(max-width: 760px) 100vw, 94vw"
+            />
+            <figcaption>
+              <span>Neighborhood perspective · Editorial image</span>
+              <p>Established streets. A little more room. A place that feels like yours.</p>
+            </figcaption>
+          </figure>
         </section>
 
         <section id="meet" className="about section-shell">
@@ -402,8 +434,8 @@ export default function Home() {
         <section className="relocation">
           <div className="relocation-media">
             <Image
-              src="/detail-1.webp"
-              alt="Sunlit contemporary home terrace"
+              src="/moving-day.webp"
+              alt="Warm, sunlit entryway ready for moving day"
               fill
               sizes="100vw"
             />
@@ -461,8 +493,8 @@ export default function Home() {
         <section className="area-feature section-shell reveal">
           <div className="area-feature-image">
             <Image
-              src="/detail-3.webp"
-              alt="Bright outdoor living space"
+              src="/tennessee-acreage.webp"
+              alt="Modern farmhouse surrounded by open Middle Tennessee acreage"
               fill
               sizes="(max-width: 800px) 92vw, 64vw"
             />

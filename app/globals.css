@@ -248,6 +248,7 @@ a:focus-visible {
   background: #0d0f0d;
 }
 
+.intro-poster,
 .intro-video,
 .intro-vignette,
 .intro-curtain {
@@ -257,10 +258,16 @@ a:focus-visible {
   height: 100%;
 }
 
+.intro-poster {
+  background: url("/hero-poster.webp") center / cover no-repeat;
+  transform: scale(1.01);
+}
+
 .intro-video {
   object-fit: cover;
   transform-origin: center;
-  will-change: transform, filter;
+  transition: opacity 180ms ease;
+  will-change: transform, filter, opacity;
 }
 
 .intro-vignette {
@@ -513,6 +520,63 @@ a:focus-visible {
   text-transform: uppercase;
 }
 
+.neighborhood-break {
+  position: relative;
+  height: clamp(500px, 62vw, 820px);
+  margin: 86px 0 0;
+  overflow: hidden;
+  background: #d8d3c8;
+}
+
+.neighborhood-break::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 52%, rgba(8, 10, 8, 0.72));
+  content: "";
+  pointer-events: none;
+}
+
+.neighborhood-break img {
+  object-fit: cover;
+  transition: transform 1.2s cubic-bezier(0.2, 0.7, 0, 1);
+}
+
+.neighborhood-break:hover img {
+  transform: scale(1.025);
+}
+
+.neighborhood-break figcaption {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 40px;
+  padding: clamp(24px, 4vw, 58px);
+  color: var(--white);
+}
+
+.neighborhood-break figcaption span {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.68;
+}
+
+.neighborhood-break figcaption p {
+  max-width: 540px;
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(30px, 4vw, 62px);
+  letter-spacing: -0.045em;
+  line-height: 0.98;
+  text-align: right;
+}
+
 .about {
   display: grid;
   grid-template-columns: minmax(340px, 0.8fr) minmax(0, 1fr);
@@ -725,6 +789,7 @@ a:focus-visible {
 
 .relocation-media img {
   object-fit: cover;
+  object-position: center 52%;
   transform: scale(1.04);
 }
 
@@ -870,6 +935,7 @@ a:focus-visible {
 
 .area-feature-image img {
   object-fit: cover;
+  object-position: center 62%;
   transition: transform 1s cubic-bezier(0.2, 0.7, 0, 1);
 }
 
@@ -1374,6 +1440,20 @@ a:focus-visible {
 
   .stats-grid article:nth-child(-n + 2) {
     border-bottom: 1px solid var(--line);
+  }
+
+  .neighborhood-break {
+    height: 560px;
+    margin-top: 54px;
+  }
+
+  .neighborhood-break figcaption {
+    display: block;
+  }
+
+  .neighborhood-break figcaption p {
+    margin-top: 16px;
+    text-align: left;
   }
 
   .about {
