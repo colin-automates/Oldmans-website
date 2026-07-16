@@ -5,6 +5,7 @@ const root = process.cwd();
 const clientDir = resolve(root, "dist", "client");
 const serverDir = resolve(root, "dist", "server");
 const outputDir = resolve(root, "pages-output");
+const deployConfigRedirect = resolve(root, ".wrangler", "deploy", "config.json");
 
 await Promise.all([
   access(clientDir),
@@ -12,6 +13,9 @@ await Promise.all([
 ]);
 
 await rm(outputDir, { recursive: true, force: true });
+// The Cloudflare Vite plugin points Wrangler at the generated Worker config.
+// Pages must keep using the root Pages config instead of that redirect.
+await rm(deployConfigRedirect, { force: true });
 await mkdir(outputDir, { recursive: true });
 await cp(clientDir, outputDir, { recursive: true });
 await cp(serverDir, resolve(outputDir, "server"), { recursive: true });

@@ -30,6 +30,10 @@ test("builds a complete Cloudflare Pages worker bundle", async () => {
   assert.match(workerSource, /\.\/server\/index\.js/);
   assert.match(assetsIgnore, /^_worker\.js$/m);
   assert.match(assetsIgnore, /^server\/$/m);
+
+  await assert.rejects(
+    access(new URL("../.wrangler/deploy/config.json", import.meta.url)),
+  );
 });
 
 test("the packaged Pages worker serves the homepage", async () => {
