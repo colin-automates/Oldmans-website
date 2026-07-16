@@ -5,6 +5,9 @@ import { useEffect, useRef, useState } from "react";
 const clamp = (value: number, min = 0, max = 1) =>
   Math.min(max, Math.max(min, value));
 
+const HERO_VIDEO_URL =
+  "https://raw.githubusercontent.com/colin-automates/Oldmans-website/17efcf92640c4eaf437463be13442bdbe9449e88/public/hero-tour.mp4";
+
 const getIntroProgress = (element: HTMLElement) => {
   const rect = element.getBoundingClientRect();
   const scrollable = Math.max(1, element.offsetHeight - window.innerHeight);
@@ -67,6 +70,7 @@ const testimonials = [
 
 export default function Home() {
   const introRef = useRef<HTMLElement>(null);
+  const posterRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const firstCopyRef = useRef<HTMLDivElement>(null);
   const secondCopyRef = useRef<HTMLDivElement>(null);
@@ -94,6 +98,10 @@ export default function Home() {
 
       if (videoRef.current) {
         videoRef.current.style.transform = `scale(${1.01 + value * 0.02})`;
+      }
+      if (posterRef.current) {
+        posterRef.current.style.transform = `scale(${1.01 + value * 0.035})`;
+        posterRef.current.style.filter = `brightness(${1 - value * 0.16})`;
       }
       if (firstCopyRef.current) {
         firstCopyRef.current.style.opacity = String(firstCopyOpacity);
@@ -187,11 +195,29 @@ export default function Home() {
       if (initial < 0.02) initialVideo.style.opacity = "1";
     }
     updateTarget();
+    const unlockVideo = () => {
+      const video = videoRef.current;
+      if (reduceMotion || !video || video.readyState < 1) return;
+      const target = targetProgressRef.current * 4.96;
+      const playback = video.play();
+      if (!playback) return;
+      void playback
+        .then(() => {
+          video.pause();
+          video.currentTime = target;
+          video.style.opacity = "1";
+        })
+        .catch(() => {
+          // The poster still carries the scroll motion when playback is blocked.
+        });
+    };
     window.addEventListener("scroll", updateTarget, { passive: true });
     window.addEventListener("resize", updateTarget);
+    window.addEventListener("touchstart", unlockVideo, { passive: true, once: true });
     return () => {
       window.removeEventListener("scroll", updateTarget);
       window.removeEventListener("resize", updateTarget);
+      window.removeEventListener("touchstart", unlockVideo);
       if (frameRef.current !== null) {
         window.cancelAnimationFrame(frameRef.current);
       }
@@ -208,12 +234,30 @@ export default function Home() {
           }
         });
       },
-      { threshold: 0.16, rootMargin: "0px 0px -5% 0px" },
+      { threshold: 0.08, rootMargin: "0px 0px -4% 0px" },
     );
 
-    const elements = document.querySelectorAll(".reveal");
+    const elements = Array.from(document.querySelectorAll<HTMLElement>(".reveal"));
     elements.forEach((element) => observer.observe(element));
-    return () => observer.disconnect();
+
+    const revealPassedElements = () => {
+      elements.forEach((element) => {
+        if (
+          !element.classList.contains("is-visible") &&
+          element.getBoundingClientRect().top < window.innerHeight * 0.92
+        ) {
+          element.classList.add("is-visible");
+          observer.unobserve(element);
+        }
+      });
+    };
+
+    revealPassedElements();
+    window.addEventListener("scroll", revealPassedElements, { passive: true });
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("scroll", revealPassedElements);
+    };
   }, []);
 
   useEffect(() => {
@@ -290,7 +334,7 @@ export default function Home() {
       <main id="main-content">
         <section id="top" className="intro-scroll" ref={introRef}>
           <div className="intro-sticky">
-            <div className="intro-poster" aria-hidden="true" />
+            <div ref={posterRef} className="intro-poster" aria-hidden="true" />
             <video
               ref={videoRef}
               className="intro-video"
@@ -312,7 +356,7 @@ export default function Home() {
                 event.currentTarget.style.opacity = "1";
               }}
             >
-              <source src="/hero-tour.mp4" type="video/mp4" />
+              <source src={HERO_VIDEO_URL} type="video/mp4" />
             </video>
             <div className="intro-vignette" />
 

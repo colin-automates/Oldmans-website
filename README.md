@@ -16,7 +16,22 @@ npm run dev
 npm run build
 ```
 
-This starter does not use `wrangler.jsonc`.
+`wrangler.jsonc` records the production Cloudflare Pages project and its
+required Node compatibility flag.
+
+## Cloudflare Pages
+
+Use `npm run build:pages` for every Pages deployment. It builds the application
+and prepares `pages-output/` with the static assets, server bundle, route rules,
+and `_worker.js` bridge Cloudflare Pages needs.
+
+The `client-mainspring` Pages project must use:
+
+- Build command: `npm run build:pages`
+- Build output directory: `pages-output`
+
+Do not deploy `dist/` directly. Its client and server output are intentionally
+separate and will leave the site root returning 404 on Pages.
 
 ## Included Shape
 
@@ -89,7 +104,8 @@ actions tied to the current ChatGPT user. Leave public content anonymous.
 
 - `npm run dev`: start local development
 - `npm run build`: verify the vinext build output
-- `npm test`: build the starter and verify its rendered loading skeleton
+- `npm run build:pages`: create the deployable Cloudflare Pages bundle
+- `npm test`: build and verify both the rendered homepage and Pages bundle
 - `npm run db:generate`: generate Drizzle migrations after schema changes
 
 ## Learn More

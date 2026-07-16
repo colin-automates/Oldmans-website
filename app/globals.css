@@ -27,7 +27,7 @@ body {
   font-family: var(--sans);
   font-size: 16px;
   line-height: 1.5;
-  overflow-x: hidden;
+  overflow-x: clip;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -1405,7 +1405,12 @@ a:focus-visible {
   }
 
   .intro-scroll {
-    height: 360vh;
+    height: 230svh;
+  }
+
+  .intro-sticky {
+    height: 100svh;
+    min-height: 100svh;
   }
 
   .intro-copy {
